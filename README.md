@@ -54,7 +54,7 @@ spmap CAPACITY using road_shp_clipped, id(_ID) ///
 
 Or we can try another zoom:
 
-```
+```applescript
 clippolyline road_shp, box(-5000,10000,335000,345000)
 
 spmap CAPACITY using road_shp_clipped, id(_ID) ///
@@ -86,7 +86,7 @@ We can test it on our nuts0 (EU countries) and nuts3 (EU homogenized regions) fi
 
 Let's start with a normal map:
 
-```
+```applescript
 use nuts0, clear
 spmap _ID using nuts0_shp, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 ```
@@ -96,21 +96,24 @@ spmap _ID using nuts0_shp, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 
 Now let's say we want to zoom in around Austria and create a box around it:
 
-```
+```applescript
 clippolygon nuts0_shp, box(128, 146, -94, -80)
 ```
 
 And we can test the clipped shapefile as follows:
 
-```
+```applescript
 spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 ```
 
 <img src="./figures/clippolygon2.png" height="500">
 
+Here we can see the clipping error in the top left corner. This will be fixed as soon as I can figure out what is causing it. All the tests run fine on dummy data.
+
+
 So how do we get these bounds? We can look into the _shp file for coordinates:
 
-```
+```applescript
 use nuts0_shp, clear
 twoway scatter _Y _X, msize(vsmall)
 ```
@@ -119,7 +122,7 @@ twoway scatter _Y _X, msize(vsmall)
 
 We can use the twoway grids as reference points. Let's generate another tighter clipping around Austria:
 
-```
+```applescript
 clippolygon nuts0_shp, box(133, 141, -92, -87)
 
 use nuts0, clear
@@ -132,7 +135,7 @@ graph export clippolygon4.png, replace wid(2000)
 
 Since we have NUTS3 file as well, we can also clip this. Let's plot the full map
 
-```
+```applescript
 use nuts3, clear
 spmap _ID using nuts3_shp, id(_ID) cln(8) osize(0.04 ..) fcolor(Pastel1) legend(off)
 ```
@@ -141,7 +144,7 @@ spmap _ID using nuts3_shp, id(_ID) cln(8) osize(0.04 ..) fcolor(Pastel1) legend(
 
 and its clipped version:
 
-```
+```applescript
 clippolygon nuts3_shp, box(133, 141, -92, -87)
 
 spmap _ID using nuts3_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
@@ -154,7 +157,7 @@ spmap _ID using nuts3_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 
 Now let's plot some actual data and clip the full map. We take the NUTS3 layer and add demographic data to it:
 
-```
+```applescript
 use nuts3, clear
 merge 1:1 NUTS_ID using demo_r_pjanind3_clean
 drop if _m==2	// UK gets dropped
@@ -163,7 +166,7 @@ tab _m
 
 and we map it with all the bells and whistles:
 
-```
+```applescript
 format yMEDAGEPOP %9.1f
 
 colorpalette viridis, n(11) nograph reverse	
@@ -183,14 +186,14 @@ spmap yMEDAGEPOP using nuts3_shp, ///
 
 Now we clip both the layers:
 
-```
+```applescript
 clippolygon nuts0_shp, box(133, 141, -92, -87)	
 clippolygon nuts3_shp, box(133, 141, -92, -87)
 ```
 
 and swap these in the above code:
 
-```
+```applescript
 colorpalette viridis, n(11) nograph reverse	
 local colors `r(p)'
 
@@ -209,7 +212,7 @@ And we get this map:
 
 Since we are reading the full data for the legend categories, we can just generate a dummy variable to make sure the legend only captures the extent shown:
 
-```
+```applescript
 cap drop box	
 gen box = .
 replace box = 1 if inrange(_CX,133, 141)
@@ -218,7 +221,7 @@ replace box = 1 if inrange(_CY,-92, -87)
 
 And we plot it again:
 
-```
+```applescript
 colorpalette viridis, n(11) nograph reverse	
 local colors `r(p)'	
 	
