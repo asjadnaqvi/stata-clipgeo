@@ -1,2 +1,330 @@
-# Stata-clipgeo
-clip polyline and polygon shapefiles on a bounding box
+# clipgeo package v1.0 (beta)
+
+*This  release: 04 Apr 2022*
+*First release: 04 Apr 2022*
+
+This package provides two programs: `clippolyline` and `clippolygeo` that clip Stata shape files (_shp.dta) on a bounding box.
+
+This allows us to zoom in and out maps without dropping whole regions.
+
+The package can be installed as follows:
+
+```applescript
+net install clipgeo, from("https://raw.githubusercontent.com/asjadnaqvi/stata-clipgeo/main/installation/") replace
+```
+
+The contents are described below:
+
+## clippolyline
+
+clippolyline takes a polyline shapefile and clips it on a manually defined bounding box. This program is a wrapper for `clipline` that implements the   [Cohen-Sutherland](https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm) algorithm in Stata.
+
+The program itself is a wrapper of the clipline subroutine that implements the algorithm.
+
+In order to test the program, you can download the files in the [GIS](/GIS) folder and copy them to a directory in Stata.
+
+The file `road.dta` provides the road grid for the city of Vienna and was extracted from OpenStreetMaps (OSM).
+
+We can plot the actual data:
+
+```applescript
+spmap CAPACITY using road_shp, id(_ID) ///
+	osize(0.02 0.08 1.5) cln(3) legend(off)
+```
+
+<img src="./figures/clippolyline1.png" height="500">
+
+
+Now let's say if we want to zoom in, then all we need to do is type:
+
+```applescript
+clippolyline road_shp, box(-7000,11000,330000,355000)
+```
+
+and this will generated a clipped shape file. We can test it as follows:
+
+
+```applescript
+spmap CAPACITY using road_shp_clipped, id(_ID) ///
+	osize(0.02 0.08 1.5) cln(3) legend(off)
+```
+
+<img src="./figures/clippolyline2.png" height="500">
+
+
+Or we can try another zoom:
+
+```
+clippolyline road_shp, box(-5000,10000,335000,345000)
+
+spmap CAPACITY using road_shp_clipped, id(_ID) ///
+	osize(0.02 0.08 1.5) cln(3) legend(off)
+```
+
+<img src="./figures/clippolyline3.png" height="500">
+
+
+## clippolygon
+
+`clippolygon` takes a polygon shapefile and clips it on a manually defined bounding box. The program implements the [Sutherland–Hodgman](https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm) algorithm.
+
+
+<img src="./figures/clippolygon0.png" height="500">
+
+
+---
+
+*Known issue: Sometimes the coordinates of the corner points in corner polygons are not added during the clipping. As a result the shapes are messed up where the end points end up being connected.* 
+
+*This is being investigated.*
+
+---
+
+
+
+We can test it on our nuts0 (EU countries) and nuts3 (EU homogenized regions) files.
+
+Let's start with a normal map:
+
+```
+use nuts0, clear
+spmap _ID using nuts0_shp, id(_ID) cln(8) fcolor(Pastel1) legend(off)
+```
+
+<img src="./figures/clippolygon1.png" height="500">
+
+
+Now let's say we want to zoom in around Austria and create a box around it:
+
+```
+clippolygon nuts0_shp, box(128, 146, -94, -80)
+```
+
+And we can test the clipped shapefile as follows:
+
+```
+spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
+```
+
+<img src="./figures/clippolygon2.png" height="500">
+
+So how do we get these bounds? We can look into the _shp file for coordinates:
+
+```
+use nuts0_shp, clear
+twoway scatter _Y _X, msize(vsmall)
+```
+
+<img src="clippolygon3.png" height="500">
+
+We can use the twoway grids as reference points. Let's generate another tighter clipping around Austria:
+
+```
+clippolygon nuts0_shp, box(133, 141, -92, -87)
+
+use nuts0, clear
+spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
+graph export clippolygon4.png, replace wid(2000)	
+```
+
+<img src="./figures/clippolygon4.png" height="500">
+
+
+Since we have NUTS3 file as well, we can also clip this. Let's plot the full map
+
+```
+use nuts3, clear
+spmap _ID using nuts3_shp, id(_ID) cln(8) osize(0.04 ..) fcolor(Pastel1) legend(off)
+```
+
+<img src="./figures/clippolygon5.png" height="500">
+
+and its clipped version:
+
+```
+clippolygon nuts3_shp, box(133, 141, -92, -87)
+
+spmap _ID using nuts3_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
+```
+
+<img src="./figures/clippolygon6.png" height="500">
+
+
+### A more comprehensive example
+
+Now let's plot some actual data and clip the full map. We take the NUTS3 layer and add demographic data to it:
+
+```
+use nuts3, clear
+merge 1:1 NUTS_ID using demo_r_pjanind3_clean
+drop if _m==2	// UK gets dropped
+tab _m  
+```
+
+and we map it with all the bells and whistles:
+
+```
+format yMEDAGEPOP %9.1f
+
+colorpalette viridis, n(11) nograph reverse	
+local colors `r(p)'
+
+spmap yMEDAGEPOP using nuts3_shp, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+<img src="./figures/clippolygon7.png" height="500">
+
+
+Now we clip both the layers:
+
+```
+clippolygon nuts0_shp, box(133, 141, -92, -87)	
+clippolygon nuts3_shp, box(133, 141, -92, -87)
+```
+
+and swap these in the above code:
+
+```
+colorpalette viridis, n(11) nograph reverse	
+local colors `r(p)'
+
+spmap yMEDAGEPOP using nuts3_shp_clipped, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp_clipped") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+And we get this map:
+
+<img src="./figures/clippolygon8.png" height="500">
+
+Since we are reading the full data for the legend categories, we can just generate a dummy variable to make sure the legend only captures the extent shown:
+
+```
+cap drop box	
+gen box = .
+replace box = 1 if inrange(_CX,133, 141)
+replace box = 1 if inrange(_CY,-92, -87)
+```
+
+And we plot it again:
+
+```
+colorpalette viridis, n(11) nograph reverse	
+local colors `r(p)'	
+	
+spmap yMEDAGEPOP using nuts3_shp_clipped if box==1, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp_clipped") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+Which gives us our final map:
+
+<img src="./figures/clippolygon9.png" height="500">
+
+
+*the corner boundary error is being investigated.
+
+
+## clipline v1.1
+
+*This  release: 08 Feb 2022*
+*First release: 05 Dec 2021*
+
+
+This package implements the Cohen-Sutherland line clipping algorithm in Stata. This is an intermediate program to help support other programs. This program can also be used indepedantly.
+
+
+Check the helpfile:
+
+```applescript
+help clipline
+```
+
+The required syntax is as follows:
+
+```applescript
+clipline x1 y1 x2 y2, [box(x_min x_max y_min y_max)] [offset(number)] [lines] [box]
+```
+
+Here is a test code, which is also provided in the dofile above:
+
+```applescript
+clear
+set obs 100
+
+
+// generate random lines
+gen id = _n
+gen x1 = runiform(1,50)
+gen y1 = runiform(1,50)
+gen x2 = runiform(1,50)
+gen y2 = runiform(1,50)
+```
+
+We can use a -0.2 factor offset which reduced the box by 20% from the extent of the coordinates:
+
+```applescript
+clipline x1 y1 x2 y2, lines addbox offset(-0.2)
+```
+
+The option `lines` adds the information on the lines back to Stata. The option `addbox` adds the box bounds back to Stata. Both are specified for drawing the box:
+
+```applescript
+	twoway ///
+		(pcspike y1 x1 y2 x2, lw(thin) lc(gs12)) ///
+		(pcspike clip_y1 clip_x1 clip_y2 clip_x2, lw(thin)) ///
+		(line box_y box_x, lc(black) lw(0.4)) ///
+			, legend(off) 
+```
+
+<img src="./figures/clipline1.png" height="500">
+
+
+You can also specify your own box and clipping extent:
+
+
+```applescript
+clipline x1 y1 x2 y2, box(5 35 10 40) lines addbox
+```
+
+Here we define a custom box bounds:
+
+```applescript
+	twoway ///
+		(pcspike y1 x1 y2 x2, lw(thin) lc(gs12)) ///
+		(pcspike clip_y1 clip_x1 clip_y2 clip_x2, lw(thin)) ///
+		(line box_y box_x, lc(black) lw(0.4)) ///
+			, legend(off) 
+```
+
+<img src="./figures/clipline2.png" height="500">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
