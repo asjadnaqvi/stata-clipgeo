@@ -41,7 +41,7 @@ Now let's say if we want to zoom in, then all we need to do is type:
 clippolyline road_shp, box(-7000,11000,330000,355000)
 ```
 
-and this will generated a clipped shape file. We can test it as follows:
+This will save the `_shp.dta` file as `_shp_clipped.dta`. We can test it as follows:
 
 
 ```applescript
@@ -74,7 +74,7 @@ spmap CAPACITY using road_shp_clipped, id(_ID) ///
 
 ---
 
-*Known issue: Sometimes the coordinates of the corner points in corner polygons are not added during the clipping. As a result the shapes are messed up where the end points end up being connected.* 
+*Known issue: Sometimes the coordinates of the corner points in corner polygons are not added during the clipping. As a result the shapes are messed up where the remaining end points end up being connected.* 
 
 *This is being investigated.*
 
@@ -82,7 +82,7 @@ spmap CAPACITY using road_shp_clipped, id(_ID) ///
 
 
 
-We can test it on our nuts0 (EU countries) and nuts3 (EU homogenized regions) files.
+We can test it on our `nuts0.dta` (EU countries) and `nuts3.dta` (EU homogenized regions) files.
 
 Let's start with a normal map:
 
@@ -100,7 +100,7 @@ Now let's say we want to zoom in around Austria and create a box around it:
 clippolygon nuts0_shp, box(128, 146, -94, -80)
 ```
 
-And we can test the clipped shapefile as follows:
+This will save the `_shp.dta` file as `_shp_clipped.dta`. And we can test the clipped shapefile as follows:
 
 ```applescript
 spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
@@ -108,7 +108,7 @@ spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 
 <img src="./figures/clippolygon2.png" height="500">
 
-Here we can see the clipping error in the top left corner. This will be fixed as soon as I can figure out what is causing it. All the tests run fine on dummy data.
+*Here we can see the clipping error in the top left corner. This will be fixed as soon as I can figure out what is causing it. All the tests run fine on dummy data.*
 
 
 So how do we get these bounds? We can look into the _shp file for coordinates:
@@ -118,7 +118,7 @@ use nuts0_shp, clear
 twoway scatter _Y _X, msize(vsmall)
 ```
 
-<img src="clippolygon3.png" height="500">
+<img src="./figures/clippolygon3.png" height="500">
 
 We can use the twoway grids as reference points. Let's generate another tighter clipping around Austria:
 
@@ -142,7 +142,7 @@ spmap _ID using nuts3_shp, id(_ID) cln(8) osize(0.04 ..) fcolor(Pastel1) legend(
 
 <img src="./figures/clippolygon5.png" height="500">
 
-and its clipped version:
+and its clipped version with the same extent as above:
 
 ```applescript
 clippolygon nuts3_shp, box(133, 141, -92, -87)
@@ -215,8 +215,8 @@ Since we are reading the full data for the legend categories, we can just genera
 ```applescript
 cap drop box	
 gen box = .
-replace box = 1 if inrange(_CX,133, 141)
-replace box = 1 if inrange(_CY,-92, -87)
+replace box = 1 if inrange(_CX, 133, 141)
+replace box = 1 if inrange(_CY, -92, -87)
 ```
 
 And we plot it again:
