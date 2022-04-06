@@ -17,15 +17,14 @@ The contents are described below:
 
 ## clippolyline
 
-clippolyline takes a polyline shapefile and clips it on a manually defined bounding box. This program is a wrapper for `clipline` that implements the   [Cohen-Sutherland](https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm) algorithm in Stata.
+clippolyline takes a polyline shapefile and clips it on a manually-defined bounding box. This program is a wrapper for `clipline` that implements the [Cohen-Sutherland](https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm) algorithm in Stata.
 
-The program itself is a wrapper of the clipline subroutine that implements the algorithm.
 
-In order to test the program, you can download the files in the [GIS](/GIS) folder and copy them to a directory in Stata.
+In order to test the program, you can download the files in the [GIS](/GIS) folder and copy them to a directory.
 
 The file `road.dta` provides the road grid for the city of Vienna and was extracted from OpenStreetMaps (OSM).
 
-We can plot the actual data:
+The spatial files can be plotted as follows:
 
 ```applescript
 spmap CAPACITY using road_shp, id(_ID) ///
