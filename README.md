@@ -5,7 +5,7 @@
 
 This package provides two programs: `clippolyline` and `clippolygeo` that clip Stata shape files (_shp.dta) on a bounding box.
 
-This allows us to zoom in and out maps without dropping whole regions.
+This allows us to zoom in maps to specific regions while still preserving geometry of clipped regions.
 
 The package can be installed as follows:
 
