@@ -1,3 +1,5 @@
+![StataMin](https://img.shields.io/badge/stata-2015-blue) ![issues](https://img.shields.io/github/issues/asjadnaqvi/stata-clipgeo) ![license](https://img.shields.io/github/license/asjadnaqvi/stata-clipgeo) ![Stars](https://img.shields.io/github/stars/asjadnaqvi/stata-clipgeo) ![version](https://img.shields.io/github/v/release/asjadnaqvi/stata-clipgeo) ![release](https://img.shields.io/github/release-date/asjadnaqvi/stata-clipgeo)
+
 # clipgeo package v1.0 (beta)
 
 *This  release: 04 Apr 2022*
