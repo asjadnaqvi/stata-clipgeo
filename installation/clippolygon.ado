@@ -1,8 +1,12 @@
-*! clippolygon v1.0 Naqvi 02Apr2022
+*! clippolygon v1.1 Naqvi 07May2022: corners fix. 
 
+* v1.0: first release. Consolidation of different packages
 * Sutherland-Hodgman polygon clipping algorithm
 * Asjad Naqvi (asjadnaqvi@gmail.com)
-* known issues: 
+
+* TODO: 
+* allow for bounding boxes of any size.
+* force check bounding box is in clockwise order 
 
 
 cap program drop clippolygon
@@ -157,7 +161,7 @@ qui {
 
 			mata points   = st_data(., ("_X", "_Y", "_ID", "group"), "touse")
 			mata points   = select(points, (points[.,2] :< .)) 
-			mata points   = points \ points[1.,]  // pad the first observation	
+			// mata points   = points \ points[1.,]  // pad the first observation	
 			mata clipbox  = clipme(points, box)
 			mata st_local("newobs", strofreal(rows(clipbox)))
 
@@ -306,6 +310,9 @@ mata:  // clipme
 	
 	
 		for (i=1; i <= rows(clippoly) - 1; i++) {			
+		
+			finalpoly   = select(finalpoly, (finalpoly[.,1] :< .)) 
+			finalpoly   = finalpoly \ finalpoly[1.,]
 		
 			nextpoly = finalpoly
 			finalpoly = J(1, 4, .)  

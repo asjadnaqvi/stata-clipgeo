@@ -1,4 +1,4 @@
-v 1.0
+v 1.1
 d CLIPGEO: Package for polyline and polygon boundary clipping
 d
 d

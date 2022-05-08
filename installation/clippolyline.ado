@@ -1,4 +1,4 @@
-*! clippolyline Naqvi 02Apr2022
+*! clippolyline v1.0 Naqvi 02Apr2022
 *! Clip polyline vectors based on a custom bounding box
 
 

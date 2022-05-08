@@ -1,6 +1,6 @@
-# clipgeo package v1.0 (beta)
+# clipgeo package v1.1
 
-*This  release: 04 Apr 2022*
+*This  release: 08 May 2022*
 *First release: 04 Apr 2022*
 
 This package provides two programs: `clippolyline` and `clippolygeo` that clip Stata shape files (_shp.dta) on a bounding box.
@@ -69,15 +69,6 @@ spmap CAPACITY using road_shp_clipped, id(_ID) ///
 
 
 <img src="./figures/clippolygon0.png" height="500">
-
-
----
-
-*Known issue: Sometimes the coordinates of the corner points in corner polygons are not added during the clipping. As a result the shapes are messed up where the remaining end points end up being connected.* 
-
-*This is being investigated.*
-
----
 
 
 
@@ -316,6 +307,21 @@ Here we define a custom box bounds:
 <img src="./figures/clipline2.png" height="500">
 
 
+---
+
+## Feedback
+
+Please open an [issue](https://github.com/asjadnaqvi/stata-clipgeo/issues) to report errors, feature enhancements, and/or other requests. 
+
+
+## Versions
+
+**v1.1 (07 May 2022)**
+- Fixed a bug in corners being missed.
+- Code clean-up.
+
+**v1.0 (02 Apr 2022)**
+- First release
 
 
 

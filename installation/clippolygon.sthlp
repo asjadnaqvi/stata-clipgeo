@@ -1,7 +1,7 @@
 {smcl}
-{* 02April2022}{...}
+{* 07May2022}{...}
 {hi:help clippolygon}{...}
-{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clippolygon v1.0 (GitHub)}}
+{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clippolygon v1.1 (GitHub)}}
 
 {hline}
 
@@ -25,18 +25,14 @@
 {synoptline}
 {p2colreset}{...}
 
-{title:Known issues}
 
-Sometimes the coordinates of the corner points are not added during the clipping. As a result the end points end up being connected. 
-
-This is being investigated.
 
 {hline}
 
 
 Keywords: Stata, graphs, map, polygon clipping, Sutherland-Hodgman algorithm
-Version: {bf:clippolygon} version 1.0
-This  release: 02 Apr 2022
+Version: {bf:clippolygon} version 1.1
+This  release: 07 May 2022
 First release: 02 Apr 2022
 License: {browse "https://opensource.org/licenses/MIT":MIT}
 
