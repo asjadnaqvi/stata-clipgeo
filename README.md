@@ -101,8 +101,6 @@ spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 
 <img src="./figures/clippolygon2.png" height="500">
 
-*Here we can see the clipping error in the top left corner. This will be fixed as soon as I can figure out what is causing it. All the tests run fine on dummy data.*
-
 
 So how do we get these bounds? We can look into the _shp file for coordinates:
 
