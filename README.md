@@ -230,8 +230,6 @@ Which gives us our final map:
 <img src="./figures/clippolygon9.png" height="500">
 
 
-*the corner boundary error is being investigated.
-
 
 ## clipline v1.1
 
