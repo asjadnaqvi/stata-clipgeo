@@ -206,8 +206,11 @@ Since we are reading the full data for the legend categories, we can just genera
 ```applescript
 cap drop box	
 gen box = .
-replace box = 1 if inrange(_CX, 133, 141)
-replace box = 1 if inrange(_CY, -92, -87)
+
+// increase the corner points slightly to avoid having 
+// blank shapes in maps
+
+replace box = 1 if inrange(_CX,132, 142) & inrange(_CY, -93, -86)	
 ```
 
 And we plot it again:
@@ -225,11 +228,61 @@ spmap yMEDAGEPOP using nuts3_shp_clipped if box==1, ///
 	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
 ```
 
-Which gives us our final map:
 
 <img src="./figures/clippolygon9.png" height="500">
 
 
+
+Another example:
+
+```applescript
+clippolygon nuts0_shp, box(128, 140, -86, -80)	
+clippolygon nuts3_shp, box(128, 140, -86, -80)
+
+
+cap drop box	
+gen box = .
+replace box = 1 if inrange(_CX,127, 141) & inrange(_CY, -87, -79)
+
+colorpalette viridis, n(11) nograph reverse	
+local colors `r(p)'	
+	
+spmap yMEDAGEPOP using nuts3_shp_clipped if box==1, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp_clipped") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+<img src="./figures/clippolygon10.png" height="500">
+
+Another example:
+
+```applescript
+clippolygon nuts0_shp, box(128, 145, -102, -88)	
+clippolygon nuts3_shp, box(128, 145, -102, -88)
+
+
+cap drop box	
+gen box = .
+replace box = 1 if inrange(_CX,127, 146) & inrange(_CY, -103, -87)
+
+
+colorpalette carto Geyser, n(11) nograph	
+local colors `r(p)'	
+	
+spmap yMEDAGEPOP using nuts3_shp_clipped if box==1, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(white ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp_clipped") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(7) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+<img src="./figures/clippolygon11.png" height="500">
 
 ## clipline v1.1
 
@@ -237,7 +290,7 @@ Which gives us our final map:
 *First release: 05 Dec 2021*
 
 
-This package implements the Cohen-Sutherland line clipping algorithm in Stata. This is an intermediate program to help support other programs. This program can also be used indepedantly.
+This package implements the Cohen-Sutherland line clipping algorithm in Stata. This is the main workhorse program behind the clippolyline package. It can also be used as an intermediate program for clipping data.
 
 
 Check the helpfile:
