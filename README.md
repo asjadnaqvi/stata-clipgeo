@@ -4,6 +4,7 @@
 # clipgeo package v1.1
 
 *This  release: 08 May 2022*
+
 *First release: 04 Apr 2022*
 
 This package provides two programs: `clippolyline` and `clippolygeo` that clip Stata shape files (_shp.dta) on a bounding box.
