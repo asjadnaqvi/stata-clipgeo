@@ -10,11 +10,19 @@ This package provides two programs: `clippolyline` and `clippolygeo` that clip S
 
 This allows us to zoom in maps to specific regions while still preserving geometry of clipped regions.
 
-The package can be installed as follows:
+The package can be installed from SSC (v1.1):
+
+```applescript
+ssc install clipgeo, replace
+```
+
+or directly via GitHub (v1.1):
 
 ```applescript
 net install clipgeo, from("https://raw.githubusercontent.com/asjadnaqvi/stata-clipgeo/main/installation/") replace
 ```
+
+Please see version numbers. Updates are released first on GitHub before that are synchronized with SSC.
 
 The contents are described below:
 
