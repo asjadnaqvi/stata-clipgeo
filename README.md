@@ -127,7 +127,6 @@ clippolygon nuts0_shp, box(133, 141, -92, -87)
 
 use nuts0, clear
 spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
-graph export clippolygon4.png, replace wid(2000)	
 ```
 
 <img src="./figures/clippolygon4.png" height="500">
