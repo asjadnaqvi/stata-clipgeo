@@ -1,11 +1,8 @@
-*! Cohen-Sutherland line clipping algorithm
-*! Asjad Naqvi 
-*! E: asjadnaqvi@gmail.com
-*! Ver 1.20  28.02.2022. box bounding calculation fixed
+*! clipline v1.2: Cohen-Sutherland line clipping algorithm
+*! Asjad Naqvi (asjadnaqvi@gmail.com)
+* Ver 1.20  28.02.2022. box bounding calculation fixed
 * Ver 1.10  28.01.2022. default bounds set to 0
-* This is a test beta release. If you have comments and suggestions
-* then please let me know. This routine was implemented for 
-* Voronoi clipping
+
 
 cap program drop clipline
 
@@ -121,9 +118,7 @@ function clipline_core(points, xmin, xmax, ymin, ymax)
 	for (i=1; i <= rows(points); i++) {			
 		cliplist[i,.] = cliproutine(points[i,1], points[i,2], points[i,3], points[i,4], xmin, xmax, ymin, ymax)	
 		}
-		
-	// cliplist = select(cliplist, (cliplist[.,2] :< .)) 
-	
+			
 	return(cliplist)
 }
 end

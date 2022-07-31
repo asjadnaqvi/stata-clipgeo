@@ -8,7 +8,7 @@
 {title:CLIPPOLYLINE (beta release)}
 
 {p 4 4 2}
-{cmd:clippolyline} takes a polyline shapefile and clips it on a manually defined bounding box. This program is a wrapper for clipline that 
+{cmd:clippolyline} takes a polyline shapefile and clips it on a manually defined bounding box. This program is a wrapper for the intermediate {stata help clipline:clipline} program that 
 implements the {browse "https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm":Cohen-Sutherland} algorithm in Stata. 
 
 
@@ -27,6 +27,9 @@ implements the {browse "https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_a
 {p2colreset}{...}
 
 
+See the {browse "https://github.com/asjadnaqvi/Stata-clipgeo":GitHub} repository for examples.
+
+{hline}
 
 Keywords: Stata, graphs, map line clipping, Cohen-Sutherland algorithm
 Version: {bf:clippolyline} version 1.0

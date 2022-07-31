@@ -26,6 +26,7 @@
 {p2colreset}{...}
 
 
+See the {browse "https://github.com/asjadnaqvi/Stata-clipgeo":GitHub} repository for examples.
 
 {hline}
 

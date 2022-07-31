@@ -1,12 +1,9 @@
-*! clippolygon v1.1 Naqvi 07May2022: corners fix. 
+*! clippolygon v1.2 Asjad Naqvi 31May2022
 
 * v1.0: first release. Consolidation of different packages
 * Sutherland-Hodgman polygon clipping algorithm
 * Asjad Naqvi (asjadnaqvi@gmail.com)
 
-* TODO: 
-* allow for bounding boxes of any size.
-* force check bounding box is in clockwise order 
 
 
 cap program drop clippolygon
@@ -16,7 +13,7 @@ cap program drop clippolygon
 // 	clippolygon   //
 ********************
 
-program define clippolygon, eclass
+program define clippolygon, sortpreserve eclass
 	version 15
 	
 	syntax namelist(max=1), Box(numlist min=4 max=4)
@@ -62,8 +59,14 @@ program define clippolygon, eclass
 			exit
 		}
 		
+
+		
 		// add the box in Mata
 		mata: box = `xmin', `ymin' \ `xmin', `ymax' \ `xmax', `ymax' \ `xmax', `ymin' \ `xmin', `ymin'	
+	
+	
+	
+	// noi di "Here 1"
 	
 	
 // main routine	
@@ -72,6 +75,22 @@ qui {
 	preserve	
 		use "`namelist'.dta", clear
 
+		
+		// check if box bounds are legitmate or not		
+		// they should contain at least one shape
+		
+		// noi di "Here 1"
+		
+		summ _X, meanonly
+		local _shpxmin = r(min)
+		local _shpxmax = r(max)
+		
+		summ _Y, meanonly
+		local _shpymin = r(min)
+		local _shpymax = r(max)
+		
+
+		
 		// separate out the islands
 
 		cap drop markme 
@@ -105,6 +124,14 @@ qui {
 		drop box
 		sort _ID shape_order		
 		
+		count 
+		
+		if `r(N)' == 0 {
+			di as error "No shapes are contained within the box. Please check the box bounds."
+			exit
+		}
+		
+		
 		
 		// mark shapes that are completely inside the box and leave them as they are
 
@@ -134,6 +161,8 @@ qui {
 				
 		// store the shapes that are fully inside in a separate file. This speeds up teh calculations
 		keep if markme==1
+		
+		
 		drop markme
 		tempfile _polyinside
 		save "`_polyinside'", replace		
@@ -145,6 +174,7 @@ qui {
 		drop if markme==1
 		drop markme
 		
+
 
 		// start the procedure here. Each island needs to be processed separately.
 
@@ -159,11 +189,10 @@ qui {
 			cap gen double id`x' = .
 			cap gen double group`x' = .
 
-			mata points   = st_data(., ("_X", "_Y", "_ID", "group"), "touse")
-			mata points   = select(points, (points[.,2] :< .)) 
-			// mata points   = points \ points[1.,]  // pad the first observation	
-			mata clipbox  = clipme(points, box)
-			mata st_local("newobs", strofreal(rows(clipbox)))
+			mata: points   = st_data(., ("_X", "_Y", "_ID", "group"), "touse")
+			mata: points   = select(points, (points[.,2] :< .)) 
+			mata: clipbox  = clipme(points, box)
+			mata: st_local("newobs", strofreal(rows(clipbox)))
 
 		// expand observations (automate this for the custom data range)
 			if `newobs' > _N {

@@ -1,11 +1,11 @@
 {smcl}
 {* 02April2022}{...}
 {hi:help clipline}{...}
-{right:{browse "https://github.com/asjadnaqvi/Stata-clipline":clipline v1.1 (GitHub)}}
+{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clipgeo v1.1 (GitHub)}}
 
 {hline}
 
-{title:CLIPLINE (beta release)}
+{title:CLIPLINE}
 
 {p 4 4 2}
 {cmd:clipline} implements the Cohen-Sutherland algorithm in Stata. It takes a set of lines, 
