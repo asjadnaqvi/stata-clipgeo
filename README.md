@@ -14,7 +14,7 @@ This package is a collection of three commands:
 `clippolygeo` | 1.2 | clip polygons |
 `geoquery` | 1.0 | query shapefiles |
 
-The first two commands allow us to clip and zoom into map regions based on the geometry defined in a shapefile. The `geoquery` command helps find the bounds for shapes easily.
+The first two commands allow us to clip and zoom into map regions based on the geometry defined in a shapefile. The `geoquery` command provides summary statistics for shapefiles. This command makes it easier to find the bounds that can be passed on to `clippolyline` and `clippolygeo`.
 
 The package can be installed via SSC or GitHub. The GitHub version, might be more recent due to bug fixes, feature updates etc, and may contain syntax improvements and changes in default values. See version numbers below. Eventually the GitHub version is published on SSC.
 
@@ -25,7 +25,7 @@ From SSC (**v1.1**):
 ssc install clipgeo, replace
 ```
 
-From GitHub (**v1.2**) (UPDATED):
+From GitHub (**v1.2**) *(UPDATED)*:
 
 ```applescript
 net install clipgeo, from("https://raw.githubusercontent.com/asjadnaqvi/stata-clipgeo/main/installation/") replace
