@@ -3,9 +3,7 @@
 
 # clipgeo package v1.2 (beta)
 
-*This  release: 31 Jul 2022*
-
-*First release: 04 Apr 2022*
+*This  release: 31 Jul 2022*, *First release: 04 Apr 2022*
 
 This package is a collection of three commands:
 
@@ -18,13 +16,16 @@ This package is a collection of three commands:
 
 The first two commands allow us to clip and zoom into map regions based on the geometry defined in a shapefile. The `geoquery` command helps find the bounds for shapes easily.
 
-The package can be installed from SSC (v1.1):
+The package can be installed via SSC or GitHub. The GitHub version, might be more recent due to bug fixes, feature updates etc, and may contain syntax improvements and changes in default values. See version numbers below. Eventually the GitHub version is published on SSC.
+
+
+From SSC (**v1.1**):
 
 ```applescript
 ssc install clipgeo, replace
 ```
 
-or directly via GitHub (**v1.2**) (UPDATED):
+From GitHub (**v1.2**) (UPDATED):
 
 ```applescript
 net install clipgeo, from("https://raw.githubusercontent.com/asjadnaqvi/stata-clipgeo/main/installation/") replace
