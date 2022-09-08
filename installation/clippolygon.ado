@@ -1,4 +1,4 @@
-*! clippolygon v1.2 Asjad Naqvi 31May2022
+*! clippolygon v1.3 Asjad Naqvi 08Aug2022
 
 * v1.0: first release. Consolidation of different packages
 * Sutherland-Hodgman polygon clipping algorithm
@@ -13,10 +13,13 @@ cap program drop clippolygon
 // 	clippolygon   //
 ********************
 
-program define clippolygon, sortpreserve eclass
+program define clippolygon, // sortpreserve eclass
 	version 15
 	
-	syntax namelist(max=1), Box(numlist min=4 max=4)
+	syntax namelist(max=1), ///
+		Method(string) 	///  				// method is box or circle
+		[ Box(numlist min=4 max=4) ] /// 	// box options
+		[ XMid(real 0) YMid(real 0) Radius(real 5) Points(real 60) Angle(real 0)  ]  // circle options
 	
 	*** checks
 
@@ -40,9 +43,30 @@ program define clippolygon, sortpreserve eclass
 	   di as err "{p}File {bf:`namelist'} not found{p_end}"
 	   exit 601
 	}	
-		
+
+	
+	capture confirm file "`namelist'.dta"
+	if _rc {
+	   di as err "{p}File {bf:`namelist'} not found{p_end}"
+	   exit 601
+	}	
+	
+	if ("`method'" != "box" & "`method'" !="circle") {
+		di as error "Valid method options are {it:box} or {it:circle}."
+	}	
+	
 		
 	// push the bounds to locals	
+	
+	if ("`method'" == "box")  {
+	
+	
+		if "`box'" == "" {
+			di as error "The option {it:box()} must be specified."
+			exit 601
+		}	
+	
+	
 	tokenize `box'		
 		local xmin = `1'	
 		local xmax = `2'
@@ -59,14 +83,23 @@ program define clippolygon, sortpreserve eclass
 			exit
 		}
 		
-
-		
-		// add the box in Mata
 		mata: box = `xmin', `ymin' \ `xmin', `ymax' \ `xmax', `ymax' \ `xmax', `ymin' \ `xmin', `ymin'	
 	
+	}
 	
 	
-	// noi di "Here 1"
+	if ("`method'" == "circle") {
+			
+			mata: box = returnbounds(`xmid', `ymid', `radius', `angle', `points') 
+			
+			mata: st_local("xmin", strofreal(min(box[.,1])))
+			mata: st_local("xmax", strofreal(max(box[.,1])))
+
+			mata: st_local("ymin", strofreal(min(box[.,2])))
+			mata: st_local("ymax", strofreal(max(box[.,2])))
+			
+	}	
+	
 	
 	
 // main routine	
@@ -74,21 +107,6 @@ program define clippolygon, sortpreserve eclass
 qui {
 	preserve	
 		use "`namelist'.dta", clear
-
-		
-		// check if box bounds are legitmate or not		
-		// they should contain at least one shape
-		
-		// noi di "Here 1"
-		
-		summ _X, meanonly
-		local _shpxmin = r(min)
-		local _shpxmax = r(max)
-		
-		summ _Y, meanonly
-		local _shpymin = r(min)
-		local _shpymax = r(max)
-		
 
 		
 		// separate out the islands
@@ -127,10 +145,9 @@ qui {
 		count 
 		
 		if `r(N)' == 0 {
-			di as error "No shapes are contained within the box. Please check the box bounds."
+			di as error "No shapes are contained within the clipping boundary. Please check the bounds."
 			exit
 		}
-		
 		
 		
 		// mark shapes that are completely inside the box and leave them as they are
@@ -138,109 +155,117 @@ qui {
 		cap drop markme
 		gen markme = . 
 
-		qui levelsof group, local(lvls)
-
-		foreach x of local lvls {
+	
+			tempvar minx maxx miny maxy
+		
+			bysort group: egen double `minx' = min(_X)
+			bysort group: egen double `maxx' = max(_X)
 			
-			qui summ _X if _X!=. & group==`x'
-			local minx = r(min)
-			local maxx = r(max)
+			bysort group: egen double `miny' = min(_Y)
+			bysort group: egen double `maxy' = max(_Y)
+			
+			
+				if ("`method'" == "box") {
+					qui replace markme = 1 if (`minx' >= `xmin') & (`maxx' <= `xmax') &  (`miny' >= `ymin') & (`maxy' <= `ymax') 			
+				}
 
-			qui summ _Y if _Y!=. & group==`x'
-			local miny = r(min)
-			local maxy = r(max)
+		
+				if ("`method'" == "circle") {
 				
-			qui replace markme = 1 if (`minx' >= `xmin') & (`maxx' <= `xmax') &  (`miny' >= `ymin') & (`maxy' <= `ymax') & group==`x'
-		}		
+					
+					local inradius = `radius' * cos(_pi / `points')
+					
+					tempvar mark
+					gen `mark' = 0
+					
+					replace `mark' = `mark' + 1 if (sqrt((`maxx' - `xmid')^2 + (`maxy' - `ymid')^2) < `inradius')  
+					replace `mark' = `mark' + 1 if (sqrt((`minx' - `xmid')^2 + (`maxy' - `ymid')^2) < `inradius')  
+					replace `mark' = `mark' + 1 if (sqrt((`maxx' - `xmid')^2 + (`miny' - `ymid')^2) < `inradius')  
+					replace `mark' = `mark' + 1 if (sqrt((`minx' - `xmid')^2 + (`miny' - `ymid')^2) < `inradius')  
+					
+					qui replace markme = 1 if `mark'==4 
+					
+				}
+			
 	
 		
 		// save here as a tempfile since we cannot preserve twice
+		
+		drop `minx' `maxx' `miny' `maxy' 
+		cap drop `mark'
+		
+		sort _ID shape_order group
 		tempfile _polysample
 		save "`_polysample'", replace
 		
 				
 		// store the shapes that are fully inside in a separate file. This speeds up teh calculations
-		keep if markme==1
-		
-		
+		keep if markme==1	
 		drop markme
 		tempfile _polyinside
 		save "`_polyinside'", replace		
 		
 		
-		
 		// continue with the shapes that intersect with the box
 		use "`_polysample'", clear
+		
+		
+		di "Values to be dropped"
+		count if markme==1
+		
+		
 		drop if markme==1
 		drop markme
 		
+		
+		di "Values left"
+		count
 
 
 		// start the procedure here. Each island needs to be processed separately.
-
-		levelsof group, local(lvls)
-
-		foreach x of local lvls {		
-
-			cap drop touse
-			gen touse = group==`x'		
-			cap gen double clip_x`x' = .
-			cap gen double clip_y`x' = .
-			cap gen double id`x' = .
-			cap gen double group`x' = .
-
-			mata: points   = st_data(., ("_X", "_Y", "_ID", "group"), "touse")
-			mata: points   = select(points, (points[.,2] :< .)) 
-			mata: clipbox  = clipme(points, box)
-			mata: st_local("newobs", strofreal(rows(clipbox)))
-
+		
+		cap gen double clip_x = .
+		cap gen double clip_y = .
+		cap gen double id = .
+		cap gen double group = .
+		
+		
+		mata: points   = st_data(., ("_X", "_Y", "_ID", "group"))
+		mata: myindex  = uniqrows(points[.,4])
+		mata: myindex  = select(myindex, (myindex[.,1] :< .)) 
+		mata: clipbox  = returnclip(points, myindex, box)
+		mata: st_local("newobs", strofreal(rows(clipbox)))
+		
+			
 		// expand observations (automate this for the custom data range)
 			if `newobs' > _N {
 				set obs `newobs'
 			}
 
 			if `newobs' > 1 {
-				getmata (clip_x`x' clip_y`x' id`x' group`x') = clipbox, force double replace
+				getmata (clip_x clip_y id group shape_order) = clipbox, force double replace
 			}
-		}
 
-		keep clip* id* group*
-		drop group
-		gen shape_order = _n
-		order shape_order
 
-		foreach x of varlist clip* id* group* {
-			sum `x'
-			if `r(N)' ==0 {
-				drop `x'
-			}
-		}
+		keep clip_x clip_y id group shape_order
 
-		foreach x of varlist id* group* {
-			replace `x' = `x'[_n+1] if `x'==.
-			replace `x' = `x'[_n+1] if `x'==.
-			replace `x' = `x'[_n+1] if `x'==.
-		}
-
-		greshape long clip_x clip_y id group, i(shape_order) j(temp)
-		drop temp
-
+		drop if id==.
 		ren id _ID
 		ren clip_x _X
 		ren clip_y _Y
+		gen clipped = 1		
 		
 		append using "`_polyinside'" // add back the inside polygons
 		
 
-		order _ID _X _Y group shape_order
-		sort _ID group shape_order
-
-		drop if _ID==.
 		
+		order _ID _X _Y group shape_order
+		sort _ID group shape_order 
+
 		compress		
 		save "`namelist'_clipped.dta", replace	
 	restore
-}	
+ }	
 
 	di in green "Done! File exported as `namelist'_clipped.dta"
 
@@ -248,12 +273,72 @@ qui {
 end	
 
 
-
-
 **************************
 //   Mata subroutines   //
 **************************
 
+
+******************
+//  returnclip  //		
+*****************
+		
+cap mata: mata drop returnclip()
+
+mata:
+function returnclip(data, index, box) 
+{	
+	mycoords = J(1,5,.)
+
+	for (i=1; i <= rows(index); i++) {
+		
+		
+		mysubset = select(data, data[.,4] :== index[i] )
+		mysubset = select(mysubset, (mysubset[.,1] :< .)) 
+		
+		myclips = clipme(mysubset, box)
+	
+		if (rows(myclips) > 1) {
+			
+			myclips[1,3] = myclips[2,3]
+			myclips[1,4] = myclips[2,4]
+			myclips =  myclips   \ ., .,  myclips[2,3], myclips[2,4] //   ., .,  myclips[2,3], myclips[2,4] 
+			
+			myclips = myclips, (1::rows(myclips))   
+			mycoords = mycoords \ myclips 
+			
+		}
+	
+	}
+
+	return (mycoords)
+}
+end
+
+
+**********************
+//  returnbounds	//		
+**********************
+
+cap mata: mata drop returnbounds()
+mata:  // returnbounds
+	function returnbounds(x, y, r, a, o)  // xmid, ymin, radius, angle, obs
+	{
+		theta  = J(o,1,.)
+		
+		for (i=1; i <= o; i++) {	
+			theta[i] = i * -2 * pi() / o
+		}
+		
+		coords = cos(theta) :* r, sin(theta) :* r
+		ro = -1 * a * pi() / 180
+		rotation = (cos(ro), -sin(ro) \ sin(ro), cos(ro))
+		coords = (coords * rotation') :+ (x, y)
+		coords = coords \ coords[1,.]
+		
+		return (coords)
+		
+	}
+end
 
 ********************
 //  is_inside	  //		
@@ -265,7 +350,7 @@ mata:  // is_inside
 	{
 		scalar R
 		R = (p2[.,1] - p1[.,1]) * (q[.,2] - p1[.,2]) - (p2[.,2] - p1[.,2]) * (q[.,1] - p1[.,1])
-		return(R <= 0)
+		return (R <= 0)
 	}
 	
 end
@@ -316,7 +401,7 @@ mata:  // compute_intersection
 		}
         
 		intersection = (x, y, p1[.,3], p1[.,4]) 
-        return(intersection)
+        return (intersection)
 	}
 end
 		
@@ -340,9 +425,11 @@ mata:  // clipme
 	
 		for (i=1; i <= rows(clippoly) - 1; i++) {			
 		
-			finalpoly   = select(finalpoly, (finalpoly[.,1] :< .)) 
-			finalpoly   = finalpoly \ finalpoly[1.,]
+			if (finalpoly[.,1]!=.) {
+				finalpoly   = select(finalpoly, (finalpoly[.,1] :< .))
+			}
 		
+			finalpoly   = finalpoly \ finalpoly[1.,]
 			nextpoly = finalpoly
 			finalpoly = J(1, 4, .)  
 	
@@ -351,8 +438,8 @@ mata:  // clipme
 		
 			for (j=1; j <= rows(nextpoly) - 1; j++) {			
 			
-				sedge1 = nextpoly[j     , .]
-				sedge2 = nextpoly[j + 1 , .]		
+				sedge1 = nextpoly[j    , .]
+				sedge2 = nextpoly[j + 1, .]		
 						
 				if (is_inside(cedge1,cedge2,sedge2) == 1) {
 					if (is_inside(cedge1,cedge2,sedge1) == 0) {
@@ -367,10 +454,18 @@ mata:  // clipme
 				}						
 			}
 		}
-		return(finalpoly)
-	}
-end		
 		
+		// if have a line, clean it up
+		if (rows(finalpoly) == 4) {
+			if (finalpoly[2,1]!=finalpoly[3,1] & finalpoly[2,2]!=finalpoly[3,2]) {
+				return (finalpoly[1::rows(finalpoly) - 1, .])
+			}
+		}
+		else {
+			return (finalpoly)
+		}
+	}
+end	
 
 ****************************
 ***     END OF FILE      ***

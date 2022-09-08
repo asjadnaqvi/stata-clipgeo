@@ -1,9 +1,9 @@
 ![StataMin](https://img.shields.io/badge/stata-2015-blue) ![issues](https://img.shields.io/github/issues/asjadnaqvi/stata-clipgeo) ![license](https://img.shields.io/github/license/asjadnaqvi/stata-clipgeo) ![Stars](https://img.shields.io/github/stars/asjadnaqvi/stata-clipgeo) ![version](https://img.shields.io/github/v/release/asjadnaqvi/stata-clipgeo) ![release](https://img.shields.io/github/release-date/asjadnaqvi/stata-clipgeo)
 
 
-# clipgeo package v1.2 (beta)
+# clipgeo package v2.0
 
-*This  release: 31 Jul 2022*, *First release: 04 Apr 2022*
+*This  release: 08 Sep 2022*
 
 This package is a collection of three commands:
 
@@ -11,7 +11,7 @@ This package is a collection of three commands:
 |Package|Version|Description|
 |----| ---- | ---- 
 `clippolyline` | 1.1 | clip polylines |
-`clippolygon` | 1.2 | clip polygons |
+`clippolygon` | 2.0 | clip polygons |
 `geoquery` | 1.0 | query shapefiles |
 
 The first two commands allow us to clip and zoom into map regions based on the geometry defined in a shapefile. The `geoquery` command provides summary statistics for shapefiles. This command makes it easier to find the bounds that can be passed on to `clippolyline` and `clippolygon`.
@@ -25,7 +25,7 @@ From SSC (**v1.1**):
 ssc install clipgeo, replace
 ```
 
-From GitHub (**v1.2**) *(UPDATED)*:
+From GitHub (**v2.0**) *(UPDATED)*:
 
 ```applescript
 net install clipgeo, from("https://raw.githubusercontent.com/asjadnaqvi/stata-clipgeo/main/installation/") replace
@@ -93,6 +93,42 @@ spmap CAPACITY using road_shp_clipped, id(_ID) ///
 <img src="./figures/clippolyline3.png" height="500">
 
 
+We can now use the `clippolygon` command to clip lines as well:
+
+
+```
+use road, clear
+geoquery road_shp
+ereturn list	
+	
+clippolygon road_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(8000)	
+
+spmap CAPACITY using road_shp_clipped, id(_ID) ///
+	osize(0.02 0.08 1.5) cln(3) legend(off)
+```
+
+<img src="./figures/clippolyline4.png" height="500">
+
+
+```
+clippolygon road_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(8000) points(6)	
+
+spmap CAPACITY using road_shp_clipped, id(_ID) ///
+	osize(0.02 0.08 1.5) cln(3) legend(off)
+```
+
+<img src="./figures/clippolyline5.png" height="500">
+
+```
+clippolygon road_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(8000) points(6)	angle(30)
+
+spmap CAPACITY using road_shp_clipped, id(_ID) ///
+	osize(0.02 0.08 1.5) cln(3) legend(off)	
+```
+
+<img src="./figures/clippolyline6.png" height="500">
+
+
 ## clippolygon
 
 `clippolygon` takes a polygon shapefile and clips it on a bounding box. The program implements the [Sutherland–Hodgman](https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm) algorithm.
@@ -111,65 +147,33 @@ spmap _ID using nuts0_shp, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 <img src="./figures/clippolygon1.png" height="500">
 
 
+If you happen to know the bounds:
+
+```
+clippolygon nuts0_shp, method(box) box(134, 141, -92, -87)
+spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
+```
+
+<img src="./figures/clippolygon2.png" height="500">
+
+
 Now let's say we want to zoom in around Austria and create a box around it. Instead of manually defining a box or pasring through the shapefiles, we can make use of the intermediate `geoquery` program:
 
 ```applescript
 use nuts0, clear
-geoquery nuts0_shp if NUTS_ID=="AT", offset(0.3)
-ereturn list
+geoquery nuts0_shp if NUTS_ID=="AT", offset(0.2)
+clippolygon nuts0_shp, method(box) box("`e(bounds)'")
 
 ```
 
-where offset is essentially saying that take the extreme end points of the coordinates of Austria, and extend them by 30%. We can now take the information and pass it to `clippolygon`:
-
-
-```applescript
-clippolygon nuts0_shp, box("`e(bounds)'")
-```
-
-This will save the `_shp.dta` file as `_shp_clipped.dta`. And we can test the clipped shapefile as follows:
+where offset is essentially saying that take the extreme end points of the coordinates of Austria, and extend them by 20%. We can now take the information and pass it to `clippolygon`. This will save the `_shp.dta` file as `_shp_clipped.dta`. And we can test the clipped shapefile as follows:
 
 ```applescript
 spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
-```
-
-<img src="./figures/clippolygon4_2.png" height="500">
-
-
-### Manually entering the bounds
-
-We can also manually enter the bounds directly (if we know them):
-
-```
-use nuts0, clear
-clippolygon nuts0_shp, box(133, 141, -92, -87)
-spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
-```
-
-<img src="./figures/clippolygon4_1.png" height="500">
-
-We can also peruse the _shp file for coordinates:
-
-```applescript
-use nuts0_shp, clear
-twoway scatter _Y _X, msize(vsmall)
 ```
 
 <img src="./figures/clippolygon3.png" height="500">
 
-where the grids can be used to determine the reference points. 
-
-
-### NUTS 3 clipping
-
-Let's plot the full NUTS 3 layer:
-
-```applescript
-use nuts3, clear
-spmap _ID using nuts3_shp, id(_ID) cln(8) osize(0.04 ..) fcolor(Pastel1) legend(off)
-```
-
-<img src="./figures/clippolygon5.png" height="500">
 
 
 Since we already identified the bounds using the NUTS0 file, we can just pass this infomation from the first clipping:
@@ -179,8 +183,8 @@ Since we already identified the bounds using the NUTS0 file, we can just pass th
 use nuts0, clear
 geoquery nuts0_shp if NUTS_ID=="AT", offset(0.3)
 
-clippolygon nuts0_shp, box("`e(bounds)'")
-clippolygon nuts3_shp, box("`e(bounds)'")
+clippolygon nuts0_shp, method(box) box("`e(bounds)'")
+clippolygon nuts3_shp, method(box) box("`e(bounds)'")
 ```
 
 Note the it is important to load the base layer that can be merged with the *_shp* file. Once the bounds the determined, the are stored in e-class locals and can be called on later.
@@ -192,7 +196,7 @@ use nuts3, clear
 spmap _ID using nuts3_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 ```
 
-<img src="./figures/clippolygon6.png" height="500">
+<img src="./figures/clippolygon4.png" height="500">
 
 
 ### A more comprehensive example
@@ -202,12 +206,31 @@ Now let's plot some actual data and clip the full map. We take the NUTS3 layer a
 ```applescript
 use nuts3, clear
 merge 1:1 NUTS_ID using demo_r_pjanind3_clean
-drop if _m==2	// UK gets dropped
+drop if _m==2	
 tab _m  
+
+
+
+format yMEDAGEPOP %9.1f
+
+
+
+colorpalette viridis, n(11) nograph reverse	
+local colors `r(p)'
+
+spmap yMEDAGEPOP using nuts3_shp, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
 ```
 
-and we map it with all the bells and whistles and the clipped files:
+<img src="./figures/clippolygon5.png" height="500">
 
+
+And we plot it again:
 
 ```applescript
 colorpalette viridis, n(11) nograph reverse	
@@ -222,28 +245,38 @@ spmap yMEDAGEPOP using nuts3_shp_clipped, ///
 	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
 ```
 
-Which gives us this map
 
-<img src="./figures/clippolygon8.png" height="500">
+<img src="./figures/clippolygon6.png" height="500">
 
-Since we are reading the full data for the legend categories, we can just generate a dummy variable to make sure the legend only captures the extent shown:
 
-```applescript
-cap drop box	
-gen box = .
+### Circular clipping
 
-// increase the corner points slightly to avoid having blank shapes in maps (this needs to be automated)
+```
+use nuts0, clear
+geoquery nuts0_shp if CNTR_CODE=="AT", offset(0.3)
+ereturn list
+clippolygon nuts0_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(100)
+clippolygon nuts3_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(100)
 
-replace box = 1 if inrange(_CX,132, 142) & inrange(_CY, -93, -86)	
+spmap _ID using nuts0_shp_clipped, id(_ID) cln(8) fcolor(Pastel1) legend(off)
 ```
 
-And we plot it again:
+<img src="./figures/clippolygon7.png" height="500">
 
-```applescript
+
+
+```
+use nuts3, clear
+merge 1:1 NUTS_ID using demo_r_pjanind3_clean
+drop if _m==2	
+tab _m  
+
+format yMEDAGEPOP %9.1f
+
 colorpalette viridis, n(11) nograph reverse	
-local colors `r(p)'	
-	
-spmap yMEDAGEPOP using nuts3_shp_clipped if box==1, ///
+local colors `r(p)'
+
+spmap yMEDAGEPOP using nuts3_shp_clipped, ///
 	id(_ID) cln(10)  fcolor("`colors'") ///
 	ocolor(gs6 ..) osize(0.03 ..) ///
 	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
@@ -252,21 +285,17 @@ spmap yMEDAGEPOP using nuts3_shp_clipped if box==1, ///
 	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
 ```
 
-
-<img src="./figures/clippolygon9.png" height="500">
-
+<img src="./figures/clippolygon8.png" height="500">
 
 
-### Another example 1
+### Polygon clipping
 
-Clip around Germany with a 20% extension to the bounds:
-
-```applescript
+```
 use nuts0, clear
-geoquery nuts0_shp if NUTS_ID=="DE", offset(0.2)
-
-clippolygon nuts0_shp, box("`e(bounds)'")
-clippolygon nuts3_shp, box("`e(bounds)'")
+geoquery nuts0_shp if CNTR_CODE=="AT", offset(0.3)
+ereturn list
+clippolygon nuts0_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(8)
+clippolygon nuts3_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(8)
 
 
 use nuts3, clear
@@ -274,12 +303,11 @@ merge 1:1 NUTS_ID using demo_r_pjanind3_clean
 drop if _m==2	
 tab _m  
 
+format yMEDAGEPOP %9.1f
 
-format yMEDAGEPOP %4.1f
+colorpalette viridis, n(11) nograph reverse	
+local colors `r(p)'
 
-colorpalette cividis, n(11) nograph reverse	
-local colors `r(p)'	
-	
 spmap yMEDAGEPOP using nuts3_shp_clipped, ///
 	id(_ID) cln(10)  fcolor("`colors'") ///
 	ocolor(gs6 ..) osize(0.03 ..) ///
@@ -291,17 +319,74 @@ spmap yMEDAGEPOP using nuts3_shp_clipped, ///
 
 <img src="./figures/clippolygon10.png" height="500">
 
-### Another example 2
 
-Clip around Italy with a 40% extension to the bounds:
 
-```applescript
+
+```
 use nuts0, clear
-geoquery nuts0_shp if NUTS_ID=="IT", offset(0.4)
+geoquery nuts0_shp if CNTR_CODE=="AT", offset(0.3)
+ereturn list
+clippolygon nuts0_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(6)
+clippolygon nuts3_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(6)
 
-clippolygon nuts0_shp, box("`e(bounds)'")
-clippolygon nuts3_shp, box("`e(bounds)'")
+use nuts3, clear
+merge 1:1 NUTS_ID using demo_r_pjanind3_clean
+drop if _m==2	
+tab _m  
 
+format yMEDAGEPOP %9.1f
+
+colorpalette viridis, n(11) nograph reverse	
+local colors `r(p)'
+
+spmap yMEDAGEPOP using nuts3_shp_clipped, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp_clipped") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+<img src="./figures/clippolygon12.png" height="500">
+
+
+```
+use nuts0, clear
+geoquery nuts0_shp if CNTR_CODE=="AT", offset(0.1)
+ereturn list
+clippolygon nuts0_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(6) angle(30)
+clippolygon nuts3_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)') points(6) angle(30)
+
+
+use nuts3, clear
+merge 1:1 NUTS_ID using demo_r_pjanind3_clean
+drop if _m==2	
+tab _m  
+
+format yMEDAGEPOP %9.1f
+
+colorpalette carto Tropic, n(11) nograph reverse	
+local colors `r(p)'
+
+spmap yMEDAGEPOP using nuts3_shp_clipped, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp_clipped") select(keep if _ID==7) ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///  // select(keep if _ID==7) 
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+<img src="./figures/clippolygon14.png" height="500">
+
+
+```
+use nuts0, clear
+geoquery nuts0_shp if NUTS_ID=="DE", offset(0.2)
+
+clippolygon nuts0_shp, method(box) box("`e(bounds)'")
+clippolygon nuts3_shp, method(box) box("`e(bounds)'")
 
 use nuts3, clear
 merge 1:1 NUTS_ID using demo_r_pjanind3_clean
@@ -311,20 +396,50 @@ tab _m
 
 format yMEDAGEPOP %4.1f
 
-colorpalette carto Geyser, n(11) nograph	
+colorpalette CET L20, n(11) nograph reverse	
 local colors `r(p)'	
 	
 spmap yMEDAGEPOP using nuts3_shp_clipped, ///
 	id(_ID) cln(10)  fcolor("`colors'") ///
-	ocolor(white ..) osize(0.03 ..) ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
 	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
-	polygon(data("nuts0_shp_clipped") ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
-	legend(pos(7) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	polygon(data("nuts0_shp_clipped") select(keep if _ID==8)  ocolor(black) osize(0.4 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
 	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
 ```
 
-<img src="./figures/clippolygon11.png" height="500">
+<img src="./figures/clippolygon15.png" height="500">
 
+
+
+```
+use nuts0, clear
+geoquery nuts0_shp if NUTS_ID=="DE", offset(0.2)
+
+clippolygon nuts0_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)')
+clippolygon nuts3_shp, method(circle) xmid(`e(xmid)') ymid(`e(ymid)') radius(`e(radius)')
+
+use nuts3, clear
+merge 1:1 NUTS_ID using demo_r_pjanind3_clean
+drop if _m==2	
+tab _m  
+
+
+format yMEDAGEPOP %4.1f
+
+colorpalette scico hawaii, n(11) nograph reverse	
+local colors `r(p)'	
+	
+spmap yMEDAGEPOP using nuts3_shp_clipped, ///
+	id(_ID) cln(10)  fcolor("`colors'") ///
+	ocolor(gs6 ..) osize(0.03 ..) ///
+	ndfcolor(gs14) ndocolor(gs6 ..) ndsize(0.03 ..) ndlabel("No data") ///
+	polygon(data("nuts0_shp_clipped") select(keep if _ID==8)  ocolor(black) osize(0.2 ..) legenda(on) legl("Countries")) ///
+	legend(pos(11) region(fcolor(gs15%90)))  legtitle("Median age in years")  legstyle(2)  ///
+	note("Data source: Eurostat table: demo_r_pjanind3. NUTS 2016 layers from Eurostat GISCO.", size(1.5)) 
+```
+
+<img src="./figures/clippolygon16.png" height="500">
 
 ---
 
@@ -334,6 +449,11 @@ Please open an [issue](https://github.com/asjadnaqvi/stata-clipgeo/issues) to re
 
 
 ## Versions
+
+**v2.0 (08 Sep 2022)**
+- Circular and polygon clipping.
+- Changes to syntaxes
+- Major optimizings to export to Stata
 
 **v1.2 (31 Jul 2022)**
 - Checks added to see if the bounding box contains any shape (reported by KyleMeng, PaulFrissard). 

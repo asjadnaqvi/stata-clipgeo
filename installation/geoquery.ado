@@ -38,36 +38,36 @@ qui {
 	
 	summ _X, meanonly
 
-	local _Xdiff = abs((r(max) - r(min)) * `offset')
-	local _Xmin  = r(min) - `_Xdiff'
-	local _Xmax  = r(max) + `_Xdiff'
-	local _Xmean = r(mean)
+	local xdiff = abs((r(max) - r(min)) * `offset')
+	local xmin  = r(min) - `xdiff'
+	local xmax  = r(max) + `xdiff'
+	local xmid = r(mean)
 	
 
 	
-	ereturn local _Xmin  = `_Xmin' 
-	ereturn local _Xmax  = `_Xmax' 
-	ereturn local _Xmean = `_Xmean'	
+	ereturn local xmin  = `xmin' 
+	ereturn local xmax  = `xmax' 
+	ereturn local xmid  = `xmid'	
 
 	summ _Y, meanonly
 	
-	local _Ydiff = abs((r(max) - r(min)) * `offset')
-	local _Ymin = r(min) - `_Ydiff'
-	local _Ymax = r(max) + `_Ydiff'
-	local _Ymean = r(mean)
+	local ydiff = abs((r(max) - r(min)) * `offset')
+	local ymin = r(min) - `ydiff'
+	local ymax = r(max) + `ydiff'
+	local ymid = r(mean)
 	
 
-	ereturn local _Ymin  = `_Ymin' 
-	ereturn local _Ymax  = `_Ymax' 
-	ereturn local _Ymean = `_Ymean'		
+	ereturn local ymin  = `ymin' 
+	ereturn local ymax  = `ymax' 
+	ereturn local ymid  = `ymid'		
 
 	
 	// noi di "Here 3"
-	local radius = sqrt((`_Xmax' - `_Xmean')^2 + (`_Ymax' - `_Ymean')^2)
+	local radius = sqrt((`xmax' - `xmid')^2 + (`ymax' - `ymid')^2)
 	ereturn local radius = `radius'
 	
 	// noi di "Here 4"
-	local bounds = "`_Xmin', `_Xmax', `_Ymin', `_Ymax'"
+	local bounds = "`xmin', `xmax', `ymin', `ymax'"
 	ereturn local bounds `bounds'
  restore	
 }	
