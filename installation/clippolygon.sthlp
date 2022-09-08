@@ -1,7 +1,7 @@
 {smcl}
-{* 07Aug2022}{...}
+{* 08Sep2022}{...}
 {hi:help clippolygon}{...}
-{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clippolygon v1.2 (GitHub)}}
+{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clippolygon v2.0 (GitHub)}}
 
 {hline}
 
@@ -53,8 +53,8 @@ See the {browse "https://github.com/asjadnaqvi/Stata-clipgeo":GitHub} repository
 
 
 Keywords: Stata, graphs, map, polygon clipping, Sutherland-Hodgman algorithm
-Version: {bf:clippolygon} version 1.2
-This  release: 07 Aug 2022
+Version: {bf:clippolygon} version 2.0
+This  release: 08 Sep 2022
 First release: 02 Apr 2022
 License: {browse "https://opensource.org/licenses/MIT":MIT}
 

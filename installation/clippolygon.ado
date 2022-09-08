@@ -1,4 +1,4 @@
-*! clippolygon v1.3 Asjad Naqvi 08Aug2022
+*! clippolygon v2.0 Asjad Naqvi 08Sep2022
 
 * v1.0: first release. Consolidation of different packages
 * Sutherland-Hodgman polygon clipping algorithm

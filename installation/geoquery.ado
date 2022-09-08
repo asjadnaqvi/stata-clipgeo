@@ -1,7 +1,5 @@
-*! geoquery v1.0 Asjad Naqvi 31July2022
-
+*! geoquery v1.0 Asjad Naqvi 08Sep2022
 * query shapefiles for summary statistics
-
 
 
 

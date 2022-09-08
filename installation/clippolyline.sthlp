@@ -1,7 +1,7 @@
 {smcl}
-{* 02April2022}{...}
+{* 08Sep2022}{...}
 {hi:help clippolyline}{...}
-{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clippolyline v1.0 (GitHub)}}
+{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clippolyline v1.1 (GitHub)}}
 
 {hline}
 
@@ -35,8 +35,8 @@ See the {browse "https://github.com/asjadnaqvi/Stata-clipgeo":GitHub} repository
 {hline}
 
 Keywords: Stata, graphs, map line clipping, Cohen-Sutherland algorithm
-Version: {bf:clippolyline} version 1.0
-This  release: 02 Apr 2022
+Version: {bf:clippolyline} version 1.1
+This  release: 08 Sep 2022
 First release: 02 Apr 2022
 License: {browse "https://opensource.org/licenses/MIT":MIT}
 

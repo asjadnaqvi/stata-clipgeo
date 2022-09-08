@@ -1,5 +1,5 @@
 {smcl}
-{* 31July2022}{...}
+{* 08Sep2022}{...}
 {hi:help geoquery}{...}
 {right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clipgeo (GitHub)}}
 
@@ -64,7 +64,7 @@ See {browse "https://github.com/asjadnaqvi/Stata-clipgeo":GitHub} for actual exa
 
 Keywords: Stata, graphs, maps, query, shapefile
 Version: {bf:geoquery} version 1.0
-This  release: 31 Jul 2022
+This  release: 08 Sep 2022
 First release: 31 Jul 2022
 License: {browse "https://opensource.org/licenses/MIT":MIT}
 
