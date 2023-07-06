@@ -19,7 +19,7 @@ program define clippolyline, eclass
 	// check gtools
 	capture findfile gtools.ado
 	if _rc != 0 {
-		display as error "gtools package is missing. Click here to install: {stata ssc install clipline, replace}"
+		display as error "gtools package is missing. Click here to install: {stata ssc install gtools, replace}"
 		exit
 	}		
 	
@@ -61,12 +61,12 @@ qui {
 		
 		count if shape_order > 3
 		
+		
 		if r(N) > 0 {
 			noisily di in red "`namelist' is not a valid polyline file. It contains polygons. Try {bf:clipolygon} instead."
 			exit
 		}
-	
-	
+
 	
 		// check if the box is valid (v1.1)
 		
