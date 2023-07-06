@@ -3,6 +3,11 @@
 
 ![StataMin](https://img.shields.io/badge/stata-2015-blue) ![issues](https://img.shields.io/github/issues/asjadnaqvi/stata-clipgeo) ![license](https://img.shields.io/github/license/asjadnaqvi/stata-clipgeo) ![Stars](https://img.shields.io/github/stars/asjadnaqvi/stata-clipgeo) ![version](https://img.shields.io/github/v/release/asjadnaqvi/stata-clipgeo) ![release](https://img.shields.io/github/release-date/asjadnaqvi/stata-clipgeo)
 
+---
+
+[Installation](#Installation) | [Syntax](#Syntax) | [Examples](#Examples) | [Feedback](#Feedback) | [Change log](#Change-log)
+
+---
 
 # clipgeo v2.0
 (08 Sep 2022)
@@ -450,7 +455,7 @@ spmap yMEDAGEPOP using nuts3_shp_clipped, ///
 Please open an [issue](https://github.com/asjadnaqvi/stata-clipgeo/issues) to report errors, feature enhancements, and/or other requests. 
 
 
-## Versions
+## Change log
 
 **v2.0 (08 Sep 2022)**
 - Circular and polygon clipping.
