@@ -1,10 +1,9 @@
-v 2.0
+v 2.1
 d {bf:CLIPGEO}: A Stata package for polyline and polygon clipping.
 d
 d clippolygon  v2.0 
 d clippolyline v1.1 
-d clipline     v1.1 
-d geoquery     v1.0 
+d geoquery     v1.1 
 d
 d Requires: Stata version 15 or higher.
 d
@@ -14,8 +13,7 @@ d KW: maps
 d KW: line clipping
 d KW: polygon clipping
 d
-d Distribution-Date: 20220908
-d First version: 05 Dec 2021
+d Distribution-Date: 20240514
 d License: MIT
 d
 d Author: Asjad Naqvi (asjadnaqvi@gmail.com)

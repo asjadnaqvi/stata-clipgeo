@@ -1,5 +1,8 @@
-*! geoquery v1.0 Asjad Naqvi 08Sep2022
-* query shapefiles for summary statistics
+*! geoquery v1.1 (14 May 2024)
+*! Asjad Naqvi (asjadnaqvi@gmail.com)
+
+* v1.1 (14 May 2024): allow negative offset
+* v1.0 (08 Sep 2022): query shapefiles for summary statistics
 
 
 
@@ -13,7 +16,7 @@ cap program drop geoquery
 program define geoquery, eclass sortpreserve
 	version 15
 	
-	syntax namelist(max=1) [if] [in]  [, OFFset(numlist >=0 ) ]
+	syntax namelist(max=1) [if] [in]  [, OFFset(numlist max=1 ) ]
 	
 	
 	capture confirm file "`namelist'.dta"
@@ -36,7 +39,7 @@ qui {
 	
 	summ _X, meanonly
 
-	local xdiff = abs((r(max) - r(min)) * `offset')
+	local xdiff = abs((r(max) - r(min)) ) * `offset'
 	local xmin  = r(min) - `xdiff'
 	local xmax  = r(max) + `xdiff'
 	local xmid = r(mean)
@@ -49,7 +52,7 @@ qui {
 
 	summ _Y, meanonly
 	
-	local ydiff = abs((r(max) - r(min)) * `offset')
+	local ydiff = abs((r(max) - r(min)) ) * `offset'
 	local ymin = r(min) - `ydiff'
 	local ymax = r(max) + `ydiff'
 	local ymid = r(mean)
@@ -59,12 +62,10 @@ qui {
 	ereturn local ymax  = `ymax' 
 	ereturn local ymid  = `ymid'		
 
-	
-	// noi di "Here 3"
 	local radius = sqrt((`xmax' - `xmid')^2 + (`ymax' - `ymid')^2)
 	ereturn local radius = `radius'
 	
-	// noi di "Here 4"
+
 	local bounds = "`xmin', `xmax', `ymin', `ymax'"
 	ereturn local bounds `bounds'
  restore	

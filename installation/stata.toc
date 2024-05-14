@@ -1,6 +1,6 @@
-v 2.0
+v 2.1
 d CLIPGEO: Package for polyline and polygon boundary clipping
-d 08 Sep 2022
+d Distribution-Date: 20240514
 d
 d Asjad Naqvi, 
 d WU Vienna/IIASA, Austria

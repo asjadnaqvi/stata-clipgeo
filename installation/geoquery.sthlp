@@ -1,7 +1,7 @@
 {smcl}
-{* 08Sep2022}{...}
+{* 14May2024}{...}
 {hi:help geoquery}{...}
-{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clipgeo (GitHub)}}
+{right:{browse "https://github.com/asjadnaqvi/Stata-clipgeo":clipgeo v2.1 (GitHub)}}
 
 {hline}
 
@@ -57,18 +57,38 @@ After the command, relevant values are stored in e-class locals. Type {cmd:{it:r
 . spmap _ID using myfile_shp_clipped, id(_ID)
 
 
-See {browse "https://github.com/asjadnaqvi/Stata-clipgeo":GitHub} for actual examples.
+See {browse "https://github.com/asjadnaqvi/stata-clipgeo":GitHub} for actual examples.
 
 {hline}
 
 
 Keywords: Stata, graphs, maps, query, shapefile
-Version: {bf:geoquery} version 1.0
-This  release: 08 Sep 2022
+Version: {bf:geoquery} version 2.1
+This  release: 14 May 2024
 First release: 31 Jul 2022
 License: {browse "https://opensource.org/licenses/MIT":MIT}
 
 Author: {browse "https://github.com/asjadnaqvi":Asjad Naqvi}
 E-mail: asjadnaqvi@gmail.com
 Twitter: {browse "https://twitter.com/AsjadNaqvi":@AsjadNaqvi}
+
+
+
+
+{title:Feedback}
+
+Please submit bugs, errors, feature requests on {browse "https://github.com/asjadnaqvi/stata-clipgeo/issues":GitHub} by opening a new issue.
+
+{title:References}
+
+{p 4 8 2}Jann, B. (2018). {browse "https://www.stata-journal.com/article.html?article=gr0075":Color palettes for Stata graphics}. The Stata Journal 18(4): 765-785.
+
+{p 4 8 2}Jann, B. (2022). {browse "https://ideas.repec.org/p/bss/wpaper/43.html":Color palettes for Stata graphics: an update}. University of Bern Social Sciences Working Papers No. 43. 
+
+
+{title:Other visualization packages}
+
+{psee}
+    {helpb arcplot}, {helpb alluvial}, {helpb bimap}, {helpb bumparea}, {helpb bumpline}, {helpb circlebar}, {helpb circlepack}, {helpb clipgeo}, {helpb delaunay}, {helpb joyplot}, 
+	{helpb marimekko}, {helpb polarspike}, {helpb sankey}, {helpb schemepack}, {helpb spider}, {helpb streamplot}, {helpb sunburst}, {helpb treecluster}, {helpb treemap}, {helpb waffle}
 
