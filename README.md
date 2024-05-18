@@ -25,7 +25,7 @@ The first two commands allow us to clip and zoom into map regions based on the g
 The package can be installed via SSC or GitHub. The GitHub version, might be more recent due to bug fixes, feature updates etc, and may contain syntax improvements and changes in default values. See version numbers below. Eventually the GitHub version is published on SSC.
 
 
-From SSC (**v2.0**):
+From SSC (**v2.1**):
 
 ```applescript
 ssc install clipgeo, replace
